@@ -1,0 +1,95 @@
+使用JavaSE实现一个简单的图形化用户管理系统。 实现用户注册，登录，用户信息显示及更新。
+
+要求：1、用户信息包括（ 编号，用户名，密码、性别，年龄，简介，图像（可选））
+
+           2、使用MySQL数据库存储用户信息。如果有图像信息，图像以文件形式存储，数据库只存储图像路径
+
+           3、编写用户映射控制类，实现使用用户对象来封装和解封。
+            (即编写一个类，设计一些方法，能够实现根据方法传进来的参数，实现从用户数据库查询数据，然后返回对应的一个或多个用户对象
+                                      设计一些方法，接收用户对象参数，能够把User对象解析成数据库中的一条记录。）
+                
+
+           4、项目完成后，把java项目文件夹压缩成一个压缩文件上传。文件大小不能超过100M
+
+
+
+1图形化界面
+2登陆、注册、显示、更新
+3,用户信息
+4调用数据库
+
+				//获取文本框信息
+				String numt = numtext.getText();
+				String name = nametext.getText();
+				String sex = "";
+				int age = (int) agetbox.getSelectedItem();
+				if(age == 0)
+					age = -1;
+				if(sex1.isSelected())
+					sex = "Male";
+				else if(sex2.isSelected())
+					sex = "Female";
+				
+				//解析信息
+				if((! numt.matches("[0-9]+")) && (! numt.equals(""))){//当编号输入不合法
+					tips.setText("please input positive digits in line: \"Number\"");
+				}
+				
+				else if(numt.equals("") && name.equals("") && sex.equals("") && age==-1)//当没有输入
+					btnQueryAll.doClick();
+				
+				else{//当部分输入
+					User qUser = new User();
+					qUser.setNum(Integer.valueOf(numt));
+					qUser.setName(name);
+					qUser.setSex(sex);
+					qUser.setAge(age);
+					JDBCtool qjt = new JDBCtool("UserData");
+					
+					if(!numt.equals(""))//当有编号输入的时候
+					{
+						if(name.equals("") && sex.equals("") && age==-1)//当只有编号输入的时候
+							{
+							if(!qjt.exist(Integer.valueOf(numt))){
+								display.setText("There is no such user(s).");
+								tips.setText("Query is done");
+							}
+							else{
+								User check = qjt.selectbyNum(Integer.valueOf(numt));
+								display.setText(check.getinfo());
+								tips.setText("Query is done");
+							}
+							
+							}
+						else{
+							User check = qjt.selectbyNum(Integer.valueOf(numt));
+							if(!qUser.equals(check)){
+							display.setText("There is no such user(s).");
+							tips.setText("Query is done");
+							}
+							else{
+							String string = check.getinfo();
+							display.setText(string);
+							tips.setText("Query is done");
+						}
+					}		
+					}
+					//当没有编号输入的时候，使用模糊查找fuzzyselect
+					else{
+//						HashSet<User> qresult = qjt.fuzzySelect(qUser);
+//						
+//						if(qresult.isEmpty())
+//							display.setText("There is no such user(s).");
+//						else{
+//							Iterator<User>iu = qresult.iterator();
+//							String disresult = "";
+//							while(iu.hasNext())
+//							disresult += iu.next().getinfo() +'\n';
+//							
+//							tips.setText("Query is done");
+//							display.setText(disresult);
+//						}
+					}
+					
+					qjt.releaseConnection();
+				}
